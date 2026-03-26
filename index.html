@@ -12,6 +12,9 @@
   <meta property="og:description" content="Software engineer building CAD tools, IoT devices, and open-source projects.">
   <meta property="og:url" content="https://kostard.github.io/">
   <meta property="og:type" content="website">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light" disabled>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <style>
     :root {
       --bg: #0d1117;
@@ -298,6 +301,7 @@
       tab-size: 2;
     }
     .source-code.open { display: block; }
+    .source-code code.hljs { background: transparent; padding: 0; }
 
     /* Blog section */
     .blog-list { display: flex; flex-direction: column; gap: 12px; }
@@ -456,7 +460,7 @@
             &lt;/&gt; Source
           </button>
         </div>
-        <div class="source-code" id="ams-source"></div>
+        <pre class="source-code" id="ams-source"><code class="language-javascript"></code></pre>
       </div>
     </div>
 
@@ -502,6 +506,8 @@ function applyTheme(t) {
   html.dataset.theme = t;
   icon.textContent = t === 'dark' ? '\u263E' : '\u2600';
   localStorage.setItem('theme', t);
+  document.getElementById('hljs-dark').disabled = (t !== 'dark');
+  document.getElementById('hljs-light').disabled = (t === 'dark');
 }
 
 applyTheme(getTheme());
@@ -512,11 +518,12 @@ toggle.addEventListener('click', () => {
 // Source code toggle + lazy load
 const sourceCache = {};
 async function toggleSource(id) {
-  const el = document.getElementById(id);
-  if (el.classList.contains('open')) {
-    el.classList.remove('open');
+  const pre = document.getElementById(id);
+  if (pre.classList.contains('open')) {
+    pre.classList.remove('open');
     return;
   }
+  const codeEl = pre.querySelector('code');
   if (!sourceCache[id]) {
     const url = '/forgecad-designs/ams_lite_adapter.forge.js';
     try {
@@ -526,8 +533,9 @@ async function toggleSource(id) {
       sourceCache[id] = '// Failed to load source';
     }
   }
-  el.textContent = sourceCache[id];
-  el.classList.add('open');
+  codeEl.textContent = sourceCache[id];
+  hljs.highlightElement(codeEl);
+  pre.classList.add('open');
 }
 
 // Smooth scroll for anchor links
