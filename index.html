@@ -525,9 +525,12 @@ async function toggleSource(id) {
   }
   const codeEl = pre.querySelector('code');
   if (!sourceCache[id]) {
-    const url = '/forgecad-designs/ams_lite_adapter.forge.js';
+    // Derive filename from the id: "foo-bar-source" -> "foo_bar.forge.js"
+    const slug = id.replace(/-source$/, '').replace(/-/g, '_');
+    const url = '/forgecad-designs/' + slug + '.forge.js';
     try {
       const res = await fetch(url);
+      if (!res.ok) throw new Error(res.statusText);
       sourceCache[id] = await res.text();
     } catch {
       sourceCache[id] = '// Failed to load source';
